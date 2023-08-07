@@ -1,0 +1,51 @@
+.background{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 10;
+    background-image: linear-gradient(to right,  #4facfe 0%, #00f2fe 100%);
+}
+.background1{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 10;
+    background-color: rgb(81, 81, 81);
+}
+.NumQ{
+    margin-top: 10px;
+    margin-left: 15px;
+    text-align: start;
+    font-size: 20px;
+}
+.box1{
+    background: rgba(255, 255, 255, 0.534);
+    width: 90%;
+    height: 80%;
+    margin-top:8px;
+    margin-left:auto;
+    margin-right: auto;
+    padding: 20px;
+    border-radius: 10px;
+}
+.question{
+    background: rgb(64, 177, 247);
+    width: 60%;
+    height: 25%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5%;
+    padding-top: 25px;
+    font-size: 30px;
+    text-align: center;
+    border-radius: 12px;
+}
+.time{
+    font-size: 30px;
+    text-align: center;
+    margin-top: 5%;
+}
