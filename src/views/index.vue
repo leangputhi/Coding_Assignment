@@ -29,6 +29,7 @@
                   <a
                     href="#"
                     class="px-3   py-2 mr-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition ease-in-out delay-100  duration-300"
+                    
                     @click="prevPage"
                   >
                     Previous
@@ -50,29 +51,7 @@
                   <!-- Add more pagination links as needed -->
                 </nav>
               </div>
-              <!-- <div class="flex">
-                      <button
-                        class="border"
-                        small
-                
-                        dark
-                     
-                        :disabled="currentPage === 1"
-                      >
-                        Previous
-                      </button>
-                        <div class="border py-3.5">Page </div>
-                      <button
-                        class="border"
-                        small
-                        dark
-                       
-                        :disabled="currentPage === totalPages"
-                      >
-                        Next
-                      </button>
 
-              </div> -->
 
               <div class="">
                 <button @click="showcate =! showcate" class="relative py-1 w-64 flex  items-center bg-white border focus:outline-none shadow text-gray-600
@@ -118,7 +97,7 @@
                       <img :src="item.flags.png" :alt="item.name.official" class="w-64 h-auto shadow" />
                     </td>
                     <td class="py-1 px-6">
-                        <button class="bg-red-500 hover:bg-red-400 px-4 py-2 rounded text-white font-semibold transition ease-in-out delay-100  duration-300">{{ item.name.common }}</button>
+                         <button v-on:click="show_model(item)"> {{ item.name.common }}</button>
                     </td> 
                     <td class="py-1 px-6">{{ item.cca2 }}</td>
                     <td class="py-1 px-6">{{ item.cca3 }}</td>
@@ -128,6 +107,36 @@
                   </tr>
             </tbody>
           </table>
+           <!-- End Table -->
+
+          <!-- popup model -->
+          <div
+            v-show="showmodel"
+          
+            class="fixed inset-0 h-screen w-full flex   justify-center items-start md:items-center pt-10 md:pt-0"
+            style=""
+          >
+              <div v-if="items" class="py-10 bg-white border-2 px-10 shadow-lg rounded-lg w-1/2">
+                <div  >
+                 
+                 <div class="">
+                 <p>Flag: <br> <img :src="items.flags.png" :alt="items.name.common" /></p>
+                 <p>CCN3: {{ items.cca3 }}</p>
+                 <p>Region: {{ items.region }}</p>
+                 <p>Subregion: {{ items.subregion }}</p>
+                 <p>Languages: {{ Object.values(items.languages).join(', ') }}</p>
+                 <p>Currencies: {{ Object.keys(items.currencies).join(', ') }}</p>
+                 <p>Translations: {{ Object.keys(items.translations).join(', ') }}</p>
+                 <p v-if="items.borders && items.borders.length > 0">Borders: {{ items.borders.join(', ') }}</p>
+                 <p v-else>No bordering countries</p>
+                 <p>Timezones: {{ items.timezones.join(', ') }}</p>
+                 </div>
+                 <button v-on:click="showmodel = false" class="px-4 py-2 bg-blue-400 rounded-lg text-white mt-3 ">Close</button>
+                </div>    
+              </div>
+
+          </div>
+          <!-- End popup model -->
           <!-- End Table -->
     </div>
 
@@ -137,15 +146,17 @@
 import axios from 'axios';
 import fuzzysort from 'fuzzysort';
 
-export default {
 
+export default {
   data() {
     return {
       search: '',
       Selected_Filter:'ASC (A-Z) ▲', 
       tableLoading: true,
-      showcate: false,
+      showmodel: false,
+      showcate:false,
       countries: [],
+      items:null,
       currentPage: 1,
       itemsPerPage: 25,
       sortOrder: 'asc', // Default sorting order
@@ -153,29 +164,30 @@ export default {
   },
   created() {
     this.getAllCountries();
+
   },
   computed: {
-    filteredCountries() {
+    Countries_filter() {
       if (!this.search) return this.countries;
 
       return fuzzysort.go(this.search, this.countries, {
         key: 'name.common',
       }).map((result) => result.obj);
     },
-    sortedCountries() {
-      return this.filteredCountries.slice().sort((a, b) => {
+    Countries_sorted() {
+      return this.Countries_filter.slice().sort((a, b) => {
         const nameA = a.name.common.toLowerCase();
         const nameB = b.name.common.toLowerCase();
         return this.sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
       });
     },
     totalPages() {
-      return Math.ceil(this.sortedCountries.length / this.itemsPerPage);
+      return Math.ceil(this.Countries_sorted.length / this.itemsPerPage);
     },
     paginatedCountries() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
-      return this.sortedCountries.slice(startIndex, endIndex);
+      return this.Countries_sorted.slice(startIndex, endIndex);
     },
   },
   methods: {
@@ -206,6 +218,13 @@ export default {
 
       this.showcate = false
     },
+
+    show_model(item){
+        this.items = item
+        this.showmodel =! this.showmodel
+        console.log(this.showmodel)
+        console.log(this.items)
+    }
   },
 };
 </script>
