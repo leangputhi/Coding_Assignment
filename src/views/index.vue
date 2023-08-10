@@ -3,11 +3,12 @@
     <div class="pt-20">
           <!-- search and filter -->
           <div class="flex justify-between my-4 mx-10">
-              <div class="">
+              <div >
                 <input
                 type="text"
                 placeholder="Search Country here..."
-                v-model="search"
+                v-model="searchQuery"
+          
                 class="border  py-3.5 text-lg  rounded-lg  pl-3 text-gray-700 bg-white border-gray-500 border rounded-md  dark:border-yellow-600 dark:placeholder-yellow-400 focus:border-yellow-400 dark:focus:border-yellow-300 focus:ring-yellow-40 focus:outline-none focus:ring focus:ring-yellow-300"
                 />
                 <svg
@@ -19,7 +20,9 @@
                 <path
                     d="M500.3 443.7l-119.7-119.7c27.22-40.41 40.65-90.9 33.46-144.7C401.8 87.79 326.8 13.32 235.2 1.723C99.01-15.51-15.51 99.01 1.724 235.2c11.6 91.64 86.08 166.7 177.6 178.9c53.8 7.189 104.3-6.236 144.7-33.46l119.7 119.7c15.62 15.62 40.95 15.62 56.57 0C515.9 484.7 515.9 459.3 500.3 443.7zM79.1 208c0-70.58 57.42-128 128-128s128 57.42 128 128c0 70.58-57.42 128-128 128S79.1 278.6 79.1 208z"
                 />
-                </svg>                                
+                </svg>   
+                
+
               </div>
 
               <!-- pagination -->
@@ -92,7 +95,7 @@
               </tr>
             </thead>
             <tbody>
-                  <tr v-for="(item, index) in paginatedCountries" :key="index" class="border-b-2 font-semibold">
+                  <tr v-for="(item, index) in searchResuts" :key="index" class="border-b-2 font-semibold">
                     <td  class="py-1 px-6">
                       <img :src="item.flags.png" :alt="item.name.official" class="w-64 h-auto shadow" />
                     </td>
@@ -151,6 +154,7 @@ export default {
   data() {
     return {
       search: '',
+      searchQuery:'',
       Selected_Filter:'ASC (A-Z) ▲', 
       tableLoading: true,
       showmodel: false,
@@ -167,28 +171,34 @@ export default {
 
   },
   computed: {
-    Countries_filter() {
-      if (!this.search) return this.countries;
 
-      return fuzzysort.go(this.search, this.countries, {
-        key: 'name.common',
-      }).map((result) => result.obj);
-    },
     Countries_sorted() {
-      return this.Countries_filter.slice().sort((a, b) => {
+      return this.countries.slice().sort((a, b) => {
         const nameA = a.name.common.toLowerCase();
         const nameB = b.name.common.toLowerCase();
         return this.sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
       });
     },
+
     totalPages() {
-      return Math.ceil(this.Countries_sorted.length / this.itemsPerPage);
+      return Math.ceil(this.countries.length / this.itemsPerPage);
     },
+
     paginatedCountries() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
       return this.Countries_sorted.slice(startIndex, endIndex);
     },
+    searchResuts() {
+      if (this.searchQuery) {
+        return this.countries.filter(country =>
+          country.name.official.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      } else {
+        return this.paginatedCountries;
+      }
+    },
+
   },
   methods: {
     async getAllCountries() {
@@ -207,18 +217,33 @@ export default {
         this.currentPage -= 1;
       }
     },
+
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage += 1;
       }
     },
+
     sortByCountryName(order, name) {
       this.sortOrder = order
       this.Selected_Filter = name
 
       this.showcate = false
     },
+    search() {
+      this.currentPage = 1; 
+    },
+    
+    // Countries_search(e){
+    //   const text = e.target.search.value
+    
+    //   console.log(text)
+    //   if (text == ''){ this.getAllCountries()} ;
 
+    //   return this.countries = fuzzysort.go(text, this.countries, {
+    //     key: 'name.common',
+    //   }).map((result) => result.obj);
+    // },
     show_model(item){
         this.items = item
         this.showmodel =! this.showmodel
